@@ -15,7 +15,7 @@ type MarshalTest struct {
 }
 
 func TestMarshal(t *testing.T) {
-	f64String := strconv.FormatFloat(math.MaxFloat64, 'g', -1, 32)
+	f64String := strconv.FormatFloat(math.MaxFloat64, 'g', -1, 64)
 	s := MarshalTest{"a", math.MaxInt64, math.MaxFloat64}
 	e := []byte(fmt.Sprintf("A: a\nB: %d\nC: %s\n", math.MaxInt64, f64String))
 
