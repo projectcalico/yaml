@@ -2,12 +2,12 @@ package yaml
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"github.com/projectcalico/go-json/json"
+	"github.com/projectcalico/go-yaml"
 )
 
 // Marshals the object into JSON then converts JSON to YAML and returns the
@@ -31,12 +31,32 @@ func Unmarshal(y []byte, o interface{}) error {
 	vo := reflect.ValueOf(o)
 	j, err := yamlToJSON(y, &vo)
 	if err != nil {
-		return fmt.Errorf("error converting YAML to JSON: %v", err)
+		return fmt.Errorf("error parsing document: %v", err)
 	}
 
 	err = json.Unmarshal(j, o)
 	if err != nil {
-		return fmt.Errorf("error unmarshaling JSON: %v", err)
+		return fmt.Errorf("error parsing document: %v", err)
+	}
+
+	return nil
+}
+
+// UnmarshalStrict converts YAML to JSON then uses JSON to unmarshal into an
+// object.  Identical to the Unmarshal function, except that it returns an
+// error (UnmarshalUnknownFieldsError) if there are fields present in the
+// document that are not present in the struct.
+func UnmarshalStrict(y []byte, o interface{}) error {
+	vo := reflect.ValueOf(o)
+	j, err := yamlToJSON(y, &vo)
+	if err != nil {
+		return fmt.Errorf("error parsing document: %v", err)
+	}
+	decoder := json.NewDecoder(bytes.NewReader(j))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(o)
+	if err != nil {
+		return fmt.Errorf("error parsing document: %v", err)
 	}
 
 	return nil
@@ -144,7 +164,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 				// Stolen from go-yaml to use the same conversion to string as
 				// the go-yaml library uses to convert float to string when
 				// Marshaling.
-				s := strconv.FormatFloat(typedKey, 'g', -1, 32)
+				s := strconv.FormatFloat(typedKey, 'g', -1, 64)
 				switch s {
 				case "+Inf":
 					s = ".inf"
@@ -256,7 +276,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 			case int64:
 				s = strconv.FormatInt(typedVal, 10)
 			case float64:
-				s = strconv.FormatFloat(typedVal, 'g', -1, 32)
+				s = strconv.FormatFloat(typedVal, 'g', -1, 64)
 			case uint64:
 				s = strconv.FormatUint(typedVal, 10)
 			case bool:
