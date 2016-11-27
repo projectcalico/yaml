@@ -1,3 +1,5 @@
+[![Build Status](https://semaphoreci.com/api/v1/calico/go-yaml-wrapper/branches/calico/badge.svg)](https://semaphoreci.com/calico/go-yaml-wrapper)
+
 # YAML marshaling and unmarshaling support for Go
 
 This is a fork of `github.com/ghodss/yaml` to provide modified YAML and JSON
