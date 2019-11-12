@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/projectcalico/go-json/json"
-	"github.com/projectcalico/go-yaml"
+	"gopkg.in/yaml.v2"
 )
 
 // Marshals the object into JSON then converts JSON to YAML and returns the
